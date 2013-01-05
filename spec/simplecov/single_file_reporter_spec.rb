@@ -29,8 +29,6 @@ describe SimpleCov::SingleFileReporter do
     end
   end
 
-
-
   private
 
   def run(command)

@@ -11,86 +11,67 @@ class SimpleCov::SingleFileReporter
 
   ANSI_COLOR_CODE_TERMINATOR = "\e[0m"
 
-  def self.print
-    SimpleCov.start
-    return unless ARGV.empty? && File.exist?($0)
-    SimpleCov.at_exit do
-      SimpleCov.result.format! # keep generating default report so people can see why the coverage is not 100%
-      puts coverage_for($0)
+  class << self
+    def print
+      SimpleCov.start
+      return unless ARGV.empty? && File.exist?($0)
+      SimpleCov.at_exit do
+        SimpleCov.result.format! # keep generating default report so people can see why the coverage is not 100%
+        puts coverage_for($0)
+      end
     end
-  end
 
-  def self.coverage_for(test_file)
-    new(test_file).coverage
-  end
-
-  attr_reader :file_under_test
-
-  def initialize(test_file)
-    @test_file = test_file
-  end
-
-  def coverage
-    if File.exist?(file_under_test)
-      extract_covered_percent
-    else
-      "Could not find file: #{file_under_test}"
+    def coverage_for(test_file)
+      if file = file_under_test(test_file)
+        if percent = covered_percent(file)
+          message(file, percent)
+        else
+          "Could not find coverage for file #{file} in Simplecov report"
+        end
+      else
+        "Could not find tested file for #{test_file}"
+      end
     end
-  end
 
-  def covered_percent
-    @covered_percent ||= file_coverage.covered_percent.round(2) if file_coverage
-  end
+    def covered_percent(file)
+      data = SimpleCov.result.files.detect { |f| f.filename =~ /#{Regexp.escape file}$/ }
+      data.covered_percent.round(2) if data
+    end
 
-  private
+    private
 
-  # TODO: Make this work for models, helpers, lib, etc
-  def file_under_test
-    @file_under_test ||= begin
-      file = @test_file.split("test/").last.
+    # TODO: Make this work for models, helpers, lib, etc
+    def file_under_test(test_file)
+      file = test_file.split("test/").last.
         sub("functional/", "controllers/").
         sub("_test.rb", ".rb").
         sub(%r{(^|/)test_([^/]+\.rb)}, "\\1\\2")
 
       possibilities = ["app", "lib"].map { |f| "#{f}/#{file}" }
-      possibilities.detect { |f| File.exist?(f) } || possibilities.last
+      possibilities.detect { |f| File.exist?(f) }
     end
-  end
 
-  def extract_covered_percent
-    if covered_percent
-      color? ? colored_message : message
-    else
-      "Could not find #{file_under_test} in Simplecov report"
+    def color?
+      STDOUT.tty?
     end
-  end
 
-  def color?
-    STDOUT.tty?
-  end
-
-  def message
-    @message ||= "#{file_under_test} coverage: #{covered_percent}"
-  end
-
-  def colored_message
-    "#{ansi_color_code}#{message}#{ANSI_COLOR_CODE_TERMINATOR}"
-  end
-
-  def ansi_color_code
-    color = if covered_percent == 100.0
-      :green
-    elsif covered_percent > 90
-      :yellow
-    else
-      :red
+    def message(file, percent)
+      message = "#{file} coverage: #{percent}"
+      if color?
+        "#{ANSI_COLOR_CODE.fetch(color(percent))}#{message}#{ANSI_COLOR_CODE_TERMINATOR}"
+      else
+        message
+      end
     end
-    ANSI_COLOR_CODE.fetch(color)
-  end
 
-  def file_coverage
-    @file_coverage ||= SimpleCov.result.files.detect do |file|
-      file.filename =~ /#{Regexp.escape file_under_test}$/
+    def color(percent)
+      if percent == 100.0
+        :green
+      elsif percent > 90
+        :yellow
+      else
+        :red
+      end
     end
   end
 end
