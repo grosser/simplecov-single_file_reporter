@@ -1,6 +1,30 @@
 require "spec_helper"
 
 describe SimpleCov::SingleFileReporter do
+  def self.in_folder(folder)
+    around do |example|
+      Dir.chdir fixtures.join(folder) do
+        example.call
+      end
+    end
+  end
+
+  def self.it_shows_correct_coverage_reports
+    it "shows percentage after single file is run" do
+      result = run("ruby test/test_a.rb")
+      result.should include("Coverage report generated")
+      result.should include("1 tests, 1 assertions")
+      result.should include("lib/a.rb coverage: 80.0")
+    end
+
+    it "does not show percentage for rake" do
+      result = run("rake")
+      result.should include("Coverage report generated")
+      result.should include("1 tests, 1 assertions")
+      result.should_not include("lib/a.rb coverage")
+    end
+  end
+
   let(:fixtures){ Bundler.root.join("spec", "fixtures") }
 
   it "has a VERSION" do
@@ -80,25 +104,13 @@ describe SimpleCov::SingleFileReporter do
   end
 
   context "in a test-unit project" do
-    around do |example|
-      Dir.chdir fixtures.join("test-unit-project") do
-        example.call
-      end
-    end
+    in_folder "test-unit-project"
+    it_shows_correct_coverage_reports
+  end
 
-    it "shows percentage after single file is run" do
-      result = run("ruby test/test_a.rb")
-      result.should include("Coverage report generated")
-      result.should include("1 tests, 1 assertions")
-      result.should include("lib/a.rb coverage: 80.0")
-    end
-
-    it "does not show percentage for rake" do
-      result = run("rake")
-      result.should include("Coverage report generated")
-      result.should include("1 tests, 1 assertions")
-      result.should_not include("lib/a.rb coverage")
-    end
+  context "in a minitest project" do
+    in_folder "minitest-project"
+    it_shows_correct_coverage_reports
   end
 
   private
