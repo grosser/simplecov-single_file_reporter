@@ -1,7 +1,7 @@
 require "simplecov"
 
 class SimpleCov::SingleFileReporter
-  VERSION = "0.0.1"
+  VERSION = "0.0.2"
 
   ANSI_COLOR_CODE = {
     :red    => "\e[31m",
