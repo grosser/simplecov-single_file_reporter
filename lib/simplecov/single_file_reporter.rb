@@ -56,7 +56,7 @@ class SimpleCov::SingleFileReporter
         sub(%r{_(test|spec)\.rb}, ".rb").
         sub(%r{(^|/)test_([^/]+\.rb)}, "\\1\\2")
 
-      possibilities = ["app", "lib"].map { |f| "#{f}/#{file}" }
+      possibilities = ["lib", "app", "app/models"].map { |f| "#{f}/#{file}" }
       possibilities.detect { |f| File.exist?(f) }
     end
 

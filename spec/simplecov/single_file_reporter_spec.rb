@@ -90,6 +90,10 @@ describe SimpleCov::SingleFileReporter do
       test_find "test/functional/xxx_controller_test.rb", "app/controllers/xxx_controller.rb"
     end
 
+    it "finds test/unit/xxx in app/models" do
+      test_find "test/unit/xxx_test.rb", "app/models/xxx.rb"
+    end
+
     it "finds test/unit/xxx as app/xxx" do
       test_find "test/unit/xxx_test.rb", "app/xxx.rb"
     end
