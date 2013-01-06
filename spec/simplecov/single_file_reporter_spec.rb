@@ -9,18 +9,18 @@ describe SimpleCov::SingleFileReporter do
     end
   end
 
-  def self.it_shows_correct_coverage_reports
+  def self.it_shows_correct_coverage_reports(options={})
     it "shows percentage after single file is run" do
-      result = run("ruby test/test_a.rb")
+      result = run(options[:run] || "ruby test/test_a.rb")
       result.should include("Coverage report generated")
-      result.should include("1 tests, 1 assertions")
+      result.should include(options[:result_run] || "1 tests, 1 assertions")
       result.should include("lib/a.rb coverage: 80.0")
     end
 
     it "does not show percentage for rake" do
       result = run("rake")
       result.should include("Coverage report generated")
-      result.should include("1 tests, 1 assertions")
+      result.should include(options[:result_rake] || "1 tests, 1 assertions")
       result.should_not include("lib/a.rb coverage")
     end
   end
@@ -101,6 +101,10 @@ describe SimpleCov::SingleFileReporter do
     it "finds test/unit/lib/xxx as lib/xxx" do
       test_find "test/unit/lib/xxx_test.rb", "lib/xxx.rb"
     end
+
+    it "finds spec" do
+      test_find "spec/xxx_spec.rb", "lib/xxx.rb"
+    end
   end
 
   context "in a test-unit project" do
@@ -113,10 +117,19 @@ describe SimpleCov::SingleFileReporter do
     it_shows_correct_coverage_reports
   end
 
+  context "in a rspec project" do
+    in_folder "rspec-project"
+    it_shows_correct_coverage_reports(
+      :run => "rspec spec/a_spec.rb",
+      :result_rake => "2 examples, 0 failures",
+      :result_run => "1 example, 0 failures",
+    )
+  end
+
   private
 
   def run(command)
-    result = `#{command}`
+    result = `#{command} 2>&1`
   ensure
     raise "FAILED: #{result}" unless $?.success?
   end

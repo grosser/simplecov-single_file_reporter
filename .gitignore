@@ -1,3 +1,2 @@
 coverage
-spec/fixtures/test-unit-project/coverage
-spec/fixtures/minitest-project/coverage
+spec/fixtures/*/coverage

@@ -14,10 +14,10 @@ class SimpleCov::SingleFileReporter
   class << self
     def print
       SimpleCov.start
-      return unless ARGV.empty? && File.exist?($0)
+      return unless test_file = (called_with_single_test || called_with_single_spec)
       SimpleCov.at_exit do
         SimpleCov.result.format! # keep generating default report so people can see why the coverage is not 100%
-        puts coverage_for($0)
+        puts coverage_for(test_file)
       end
     end
 
@@ -40,13 +40,21 @@ class SimpleCov::SingleFileReporter
 
     private
 
+    def called_with_single_test
+      ARGV.empty? && File.exist?($0) && $0
+    end
+
+    def called_with_single_spec
+      $0 =~ %r{/r?spec$} && ARGV.size == 1 && File.exist?(ARGV[0]) && ARGV[0]
+    end
+
     # TODO: Make this work for models, helpers, lib, etc
     def file_under_test(test_file)
-      file = test_file.split("test/").last.
+      file = test_file.split(%r{(test|spec)/}).last.
         sub(%r{^functional/}, "controllers/").
         sub(%r{^unit/}, "").
         sub(%r{^lib/}, "").
-        sub("_test.rb", ".rb").
+        sub(%r{_(test|spec)\.rb}, ".rb").
         sub(%r{(^|/)test_([^/]+\.rb)}, "\\1\\2")
 
       possibilities = ["app", "lib"].map { |f| "#{f}/#{file}" }
