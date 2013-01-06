@@ -43,7 +43,9 @@ class SimpleCov::SingleFileReporter
     # TODO: Make this work for models, helpers, lib, etc
     def file_under_test(test_file)
       file = test_file.split("test/").last.
-        sub("functional/", "controllers/").
+        sub(%r{^functional/}, "controllers/").
+        sub(%r{^unit/}, "").
+        sub(%r{^lib/}, "").
         sub("_test.rb", ".rb").
         sub(%r{(^|/)test_([^/]+\.rb)}, "\\1\\2")
 
