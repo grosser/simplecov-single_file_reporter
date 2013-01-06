@@ -13,7 +13,6 @@ class SimpleCov::SingleFileReporter
 
   class << self
     def print
-      SimpleCov.start
       return unless test_file = (called_with_single_test || called_with_single_spec)
       SimpleCov.at_exit do
         SimpleCov.result.format! # keep generating default report so people can see why the coverage is not 100%

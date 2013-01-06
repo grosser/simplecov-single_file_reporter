@@ -14,7 +14,8 @@ Print coverage percent when you run a single file
 
 ```Ruby
 require "simplecov/single_file_reporter"
-Simplecov::SingleFileReporter.print
+SimpleCov.start
+SimpleCov::SingleFileReporter.print
 ```
 
 ```Bash
@@ -40,6 +41,8 @@ class MyReporter < SimpleCov::SingleFileReporter
     super(test_file) || test_file.split("test/").last.sub("foo", "bar").sub("_test.rb", ".rb")
   end
 end
+
+SimpleCov.start
 MyReporter.print
 ```
 
