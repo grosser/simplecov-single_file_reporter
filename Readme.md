@@ -1,4 +1,4 @@
-print coverage per test file
+print coverage for 1 test/spec file
 
 Install
 =======
@@ -18,35 +18,36 @@ Simplecov::SingleFileReporter.print
 ```
 
 ```Bash
-ruby test/xxx_test.rb
-
+ruby test/a_test.rb
+1 tests, 1 assertions
+lib/a.rb coverage: 80.0
 ```
 
 ### Customizing file-finding rules
 
+SingleFileReporter needs to find the file that is tested.
+```
+test/test_xxx.rb -> lib/xxx.rb or app/xxx.rb
+```
+
+If it's something common, make a pull request.<br/>
+If your app has special rules you can add them:
+
 ```Ruby
 class MyReporter < SimpleCov::SingleFileReporter
   remove :file_under_test
-  def file_under_test
-    @test_file.gsub("subfolder", "app")
+  def self.file_under_test(test_file)
+    super(test_file) || test_file.split("test/").last.sub("foo", "bar").sub("_test.rb", ".rb")
   end
 end
+MyReporter.print
 ```
 
-### Using percentage for something else
-
-```Ruby
-reporter = SimpleCov::SingleFileReporter.new("test/xxx_test.rb")
-puts reporter.coverage
-puts reporter.covered_percent
-```
-
-Author
+Authors
 ======
 
-
-EROIC
-
+### [Contributors](https://github.com/grosser/simplecov-single_file_reporter/contributors)
+ - [Eirik Dentz Sinclair](https://github.com/edsinclair)
 
 [Michael Grosser](http://grosser.it)<br/>
 michael@grosser.it<br/>
