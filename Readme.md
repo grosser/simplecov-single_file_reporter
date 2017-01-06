@@ -1,3 +1,5 @@
+DEPRECATED use [single_cov](https://github.com/grosser/single_cov)
+
 print coverage for 1 test/spec file
 
 Install
